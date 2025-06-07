@@ -2,13 +2,15 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>V0.04 - Publicar Vaga - JobFishing</title>
+  <title>V0.05 - Publicar Vaga - JobFishing</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 40px auto; max-width: 600px; }
     input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
-    #preview { margin-top: 30px; border: 1px solid #ccc; padding: 20px; background: #f9f9f9; }
+    #preview, #resultado { margin-top: 30px; border: 1px solid #ccc; padding: 20px; background: #f9f9f9; }
     .btn { background-color: #007BFF; color: white; border: none; cursor: pointer; }
     .btn:hover { background-color: #0056b3; }
+    #copiar { margin-top: 10px; background: #28a745; }
+    #copiar:hover { background: #1e7e34; }
   </style>
 </head>
 <body>
@@ -27,9 +29,10 @@
   </form>
 
   <div id="preview"></div>
+  <div id="resultado"></div>
 
   <script>
-    document.getElementById("job-form").addEventListener("submit", async function(e) {
+    document.getElementById("job-form").addEventListener("submit", function(e) {
       e.preventDefault();
       const form = e.target;
       const data = {
@@ -66,7 +69,21 @@
           }
 
           const result = await res.json();
-          alert("✅ Anúncio criado com sucesso!\n\nLink curto: " + result.short_link);
+
+          document.getElementById("resultado").innerHTML = `
+            <h3>✅ Anúncio publicado com sucesso!</h3>
+            <p>Link curto: <a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
+            <button id="copiar" class="btn">Copiar link</button>
+          `;
+
+          document.getElementById("copiar").onclick = () => {
+            navigator.clipboard.writeText(result.short_link);
+            alert("Link copiado para a área de transferência!");
+          };
+
+          document.getElementById("preview").innerHTML = "";
+          form.reset();
+
         } catch (error) {
           alert("❌ Erro ao publicar: " + error.message);
         }
