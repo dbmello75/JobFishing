@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Publicar Vaga - JobFishing</title>
+  <style>
+    body { font-family: Arial; margin: 40px auto; max-width: 600px; }
+    input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
+    #preview { margin-top: 30px; border: 1px solid #ccc; padding: 20px; background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>Publique sua vaga de emprego</h1>
+
+  <form id="job-form">
+    <input type="text" name="title" placeholder="Título da vaga" required>
+    <textarea name="description" placeholder="Descrição da vaga" required></textarea>
+    <input type="tel" name="employer_phone" placeholder="Telefone para contato" required>
+    <select name="days_valid">
+      <option value="3">3 dias</option>
+      <option value="7">7 dias</option>
+      <option value="14">14 dias</option>
+    </select>
+    <button type="submit">Pré-visualizar anúncio</button>
+  </form>
+
+  <div id="preview"></div>
+
+  <script>
+    document.getElementById("job-form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        title: form.title.value,
+        description: form.description.value,
+        employer_phone: form.employer_phone.value,
+        days_valid: parseInt(form.days_valid.value)
+      };
+
+      // Prévia
+      document.getElementById("preview").innerHTML = `
+        <h3>Pré-visualização do anúncio:</h3>
+        <p><strong>${data.title}</strong></p>
+        <p>${data.description}</p>
+        <p><strong>Contato:</strong> ${data.employer_phone}</p>
+        <button id="confirmar">Confirmar e publicar</button>
+      `;
+
+      document.getElementById("confirmar").onclick = async () => {
+        const res = await fetch("/create-ad", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        alert("Anúncio criado com sucesso!\nLink: " + result.short_link);
+        // Redirecionar para pagamento no Square App
+        // window.location.href = "https://square.link/to/SEU-CHECKOUT";
+      };
+    });
+  </script>
+</body>
+</html>
