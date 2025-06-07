@@ -1,0 +1,39 @@
+# Python
+
+**pycache**/
+\*.py\[cod]
+\*.pyo
+\*.pyd
+\*.so
+
+# Ambiente virtual
+
+venv/
+ENV/
+.venv/
+
+# Editor/IDE
+
+.vscode/
+.idea/
+\*.swp
+
+# Arquivos temporários
+
+\*.log
+\*.tmp
+\*.bak
+
+# Sistema
+
+.DS\_Store
+Thumbs.db
+
+# Outros
+
+\*.sqlite3
+instance/
+.env
+\*.db
+\*.egg-info/
+
