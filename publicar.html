@@ -2,11 +2,13 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Publicar Vaga - JobFishing</title>
+  <title>V0.04 - Publicar Vaga - JobFishing</title>
   <style>
-    body { font-family: Arial; margin: 40px auto; max-width: 600px; }
+    body { font-family: Arial, sans-serif; margin: 40px auto; max-width: 600px; }
     input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
     #preview { margin-top: 30px; border: 1px solid #ccc; padding: 20px; background: #f9f9f9; }
+    .btn { background-color: #007BFF; color: white; border: none; cursor: pointer; }
+    .btn:hover { background-color: #0056b3; }
   </style>
 </head>
 <body>
@@ -21,7 +23,7 @@
       <option value="7">7 dias</option>
       <option value="14">14 dias</option>
     </select>
-    <button type="submit">Pré-visualizar anúncio</button>
+    <button type="submit" class="btn">Pré-visualizar anúncio</button>
   </form>
 
   <div id="preview"></div>
@@ -31,31 +33,43 @@
       e.preventDefault();
       const form = e.target;
       const data = {
-        title: form.title.value,
-        description: form.description.value,
-        employer_phone: form.employer_phone.value,
+        title: form.title.value.trim(),
+        description: form.description.value.trim(),
+        employer_phone: form.employer_phone.value.trim(),
         days_valid: parseInt(form.days_valid.value)
       };
 
-      // Prévia
+      if (!data.title || !data.description || !data.employer_phone) {
+        alert("Por favor, preencha todos os campos.");
+        return;
+      }
+
       document.getElementById("preview").innerHTML = `
-        <h3>Pré-visualização do anúncio:</h3>
+        <h3>Pré-visualização:</h3>
         <p><strong>${data.title}</strong></p>
         <p>${data.description}</p>
         <p><strong>Contato:</strong> ${data.employer_phone}</p>
-        <button id="confirmar">Confirmar e publicar</button>
+        <button id="confirmar" class="btn">Confirmar e publicar</button>
       `;
 
       document.getElementById("confirmar").onclick = async () => {
-        const res = await fetch("/create-ad", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        alert("Anúncio criado com sucesso!\nLink: " + result.short_link);
-        // Redirecionar para pagamento no Square App
-        // window.location.href = "https://square.link/to/SEU-CHECKOUT";
+        try {
+          const res = await fetch("/create-ad", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Erro ao criar anúncio.");
+          }
+
+          const result = await res.json();
+          alert("✅ Anúncio criado com sucesso!\n\nLink curto: " + result.short_link);
+        } catch (error) {
+          alert("❌ Erro ao publicar: " + error.message);
+        }
       };
     });
   </script>
