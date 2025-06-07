@@ -21,6 +21,12 @@ app = FastAPI()
 # Simulando banco de dados em memória
 ads_db: Dict[str, "JobAd"] = {}
 
+class AdCreateRequest(BaseModel):
+    title: str
+    description: str
+    employer_phone: str
+    days_valid: Optional[int] = 7
+
 class JobAd(BaseModel):
     id: UUID
     title: str
@@ -33,24 +39,25 @@ class JobAd(BaseModel):
     click_count: int = 0
 
 @app.post("/create-ad")
-def create_ad(title: str, description: str, employer_phone: str, days_valid: Optional[int] = 7):
+def create_ad(payload: AdCreateRequest):
     ad_id = uuid4()
     now = datetime.utcnow()
-    expires = now + timedelta(days=days_valid)
+    expires = now + timedelta(days=payload.days_valid)
     short_id = str(ad_id)[:8]
     short_link = f"{SHORTLINK_DOMAIN}/r/{short_id}"
 
     ad = JobAd(
         id=ad_id,
-        title=title,
-        description=description,
-        employer_phone=employer_phone,
+        title=payload.title,
+        description=payload.description,
+        employer_phone=payload.employer_phone,
         created_at=now,
         expires_at=expires,
         short_link=short_link
     )
     ads_db[short_id] = ad
     return {"message": "Anúncio criado com sucesso!", "short_link": short_link}
+
 
 @app.post("/deactivate-ad/{short_id}")
 def deactivate_ad(short_id: str):
