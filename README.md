@@ -12,3 +12,7 @@ Para enviar atualizações ao servidor:
 
 ```bash
 make deploy
+
+## 📘 Roadmap
+
+Consulte o roadmap técnico completo em [`roadmap.md`](./roadmap.md).
