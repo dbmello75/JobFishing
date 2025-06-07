@@ -1,0 +1,181 @@
+/* 1500px */
+
+@media screen and (max-width: 93.75em) {
+    .header {
+        min-height: 124em;
+    }
+
+    .header__img-wrapper {
+        right: -9.5em;
+        top: -19.5em;
+        max-width: 100em;
+    }
+
+    .header__logo-wrapper {
+        margin-top: 21em;
+    }
+}
+
+/* 1224px */
+
+@media screen and (max-width: 76.5em) {
+    .center {
+        width: 102.4em;
+    }
+
+    .header {
+        min-height: 111em;
+    }
+
+    .header__img-wrapper {
+        right: -7.5em;
+        top: -15.5em;
+        max-width: 80em;
+    }
+
+    .header__logo-wrapper {
+        margin-top: 14em;
+    }
+
+    .section-2__img-wrapper {
+        max-width: 100em;
+    }
+
+    .chat__row .col-5 {
+        padding: 0 2.5em;
+    }
+}
+
+/* 1024px */
+
+@media screen and (max-width: 64em) {
+    .center {
+        width: 76.8em;
+    }
+
+    .col-6-md {
+        width: 50%;
+    }
+
+    .header {
+        min-height: 151em;
+    }
+
+    .header .center {
+        display: flex;
+            align-items: center;
+            flex-direction: column;      
+    }
+
+    .header__img-wrapper {
+        margin-top: 2.5em;
+        position: static;
+        max-width: 80em;
+    }
+
+    .header__logo-wrapper {
+        margin-top: 10em;
+        order: -1;
+    }
+
+    .section-2__container {
+        flex-direction: column;
+
+    }
+
+    .section-2__img-wrapper {
+        order: 2;
+        position: static;
+    }
+
+    .jobs {
+        margin-top: 10em;
+    }
+
+    .jobs__row {
+        justify-content: center;
+    }
+
+    .jobs__img-container {
+        margin: 13.4em auto 0 auto;
+    }
+
+    .jobs__img-container .col-3{
+        padding: 2.1em;
+    }
+
+    .darker-bg__bottom-img {
+        margin-top: -.1em;
+    }
+
+    .chat {
+        min-height: 140.6em;
+    }
+
+    .section-2__text-content{
+        max-width: 100%;
+    }
+}
+
+/* 768px */
+
+@media screen and (max-width: 48em) {
+    .center {
+        width: 100%;
+    }
+
+    .col-sm {
+        width: 100%;
+    }
+
+    .header {
+        min-height: 145em;
+    }
+
+    .jobs__row img{
+        margin: 2.9em auto 0;
+    }
+
+    .search br {
+        display: none;
+    }
+
+    .chat {
+        min-height: 238.6em;
+    }
+
+    .chat br {
+        display: none;
+    }
+
+    .chat__row img {
+        margin: 3em auto 0;
+    }
+}
+
+/* 480px */
+
+@media screen and (max-width: 30em) {
+    .header {
+        min-height: 123.4em;
+    }
+
+    .jobs br {
+        display: none;
+    }
+
+
+    
+}
+
+/* 320px */
+
+@media screen and (max-width: 20em) {
+    .header {
+        min-height: 114.4em;
+    }
+
+    .chat {
+        min-height: 191.6em;
+    }
+}
