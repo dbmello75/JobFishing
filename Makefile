@@ -4,7 +4,7 @@ SERVICE=jobfishing
 
 deploy:
 
-	rsync -av --delete \
+	sudo rsync -av --delete \
      --exclude 'venv/' \
      --exclude '.git/' \
      --exclude '.env' \
