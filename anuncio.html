@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalhes do Anúncio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h2 {
+      color: #0077cc;
+    }
+    p {
+      margin: 10px 0;
+    }
+    strong {
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="anuncio">Carregando...</div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      if (!id) {
+        document.getElementById("anuncio").innerHTML = "<p>ID não informado.</p>";
+        return;
+      }
+
+      try {
+        const res = await fetch(`/anuncio/${id}`);
+        const result = await res.json();
+
+        if (result.detail) {
+          document.getElementById("anuncio").innerHTML = "<p>Anúncio não encontrado.</p>";
+        } else {
+          document.getElementById("anuncio").innerHTML = `
+            <h2>${result.title}</h2>
+            <p>${result.description}</p>
+            <p><strong>Região:</strong> ${result.region || 'Não informado'}</p>
+            <p><strong>Inglês:</strong> ${result.english_level || 'Não informado'}</p>
+            <p><strong>Precisa de carro:</strong> ${result.requires_car ? 'Sim' : 'Não'}</p>
+            <p><strong>Requer ITIN:</strong> ${result.requires_itin ? 'Sim' : 'Não'}</p>
+            <p><strong>Contato:</strong> ${result.employer_phone}</p>
+          `;
+        }
+      } catch (e) {
+        document.getElementById("anuncio").innerHTML = "<p>Erro ao carregar anúncio.</p>";
+      }
+    });
+  </script>
+</body>
+</html>

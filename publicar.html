@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <title>V0.06 - Publicar Vaga - JobFishing</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 40px auto; }
+    input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    .checkbox { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    #preview, #resultado { margin-top: 30px; padding: 20px; border: 1px solid #ccc; background: #f9f9f9; }
+    .btn { background-color: #007BFF; color: white; border: none; padding: 10px; cursor: pointer; }
+    .btn:hover { background-color: #0056b3; }
+    #copiar { background-color: #28a745; }
+    #copiar:hover { background-color: #1e7e34; }
+  </style>
+</head>
+<body>
+  <h1>Publique sua vaga de emprego</h1>
+  <form id="job-form">
+    <label>Título da vaga</label>
+    <input type="text" name="title" required>
+
+    <label>Descrição</label>
+    <textarea name="description" required></textarea>
+
+    <label>Telefone para contato (WhatsApp)</label>
+    <input type="tel" name="employer_phone" required>
+
+    <label>Duração do anúncio</label>
+    <select name="days_valid">
+      <option value="3">3 dias</option>
+      <option value="7">7 dias</option>
+      <option value="14">14 dias</option>
+    </select>
+
+    <label>Região</label>
+    <select name="region" id="regiao-select" required></select>
+
+    <label>Nível de inglês necessário</label>
+    <select name="ingles">
+      <option value="Não é necessário">Não é necessário</option>
+      <option value="Básico">Básico</option>
+      <option value="Intermediário">Intermediário</option>
+      <option value="Avançado">Avançado</option>
+    </select>
+
+    <div class="checkbox">
+      <input type="checkbox" id="precisa_carro" name="precisa_carro">
+      <label for="precisa_carro">Precisa ter carro?</label>
+    </div>
+
+    <div class="checkbox">
+      <input type="checkbox" id="requer_itin" name="requer_itin">
+      <label for="requer_itin">Requer ITIN Number?</label>
+    </div>
+
+    <button type="submit" class="btn">Pré-visualizar anúncio</button>
+  </form>
+
+  <div id="preview"></div>
+  <div id="resultado"></div>
+
+  <script>
+    // Carrega as regiões de um JSON
+    fetch("/regioes.json")
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById("regiao-select");
+        data.forEach(region => {
+          const opt = document.createElement("option");
+          opt.value = opt.textContent = region;
+          select.appendChild(opt);
+        });
+      })
+      .catch(() => {
+        const regiaoSelect = document.getElementById("regiao-select");
+        ["South Shore", "RI", "North Shore", "Metro West", "Variada"].forEach(region => {
+          const opt = document.createElement("option");
+          opt.value = opt.textContent = region;
+          regiaoSelect.appendChild(opt);
+        });
+      });
+
+    document.getElementById("job-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        title: form.title.value.trim(),
+        description: form.description.value.trim(),
+        employer_phone: form.employer_phone.value.trim(),
+        days_valid: parseInt(form.days_valid.value),
+        region: form.region.value,
+        ingles: form.ingles.value,
+        precisa_carro: form.precisa_carro.checked,
+        requer_itin: form.requer_itin.checked
+      };
+
+      document.getElementById("preview").innerHTML = `
+        <h3>Pré-visualização:</h3>
+        <p><strong>${data.title}</strong></p>
+        <p>${data.description}</p>
+        <p><strong>Contato:</strong> ${data.employer_phone}</p>
+        <p><strong>Região:</strong> ${data.region}</p>
+        <p><strong>Inglês:</strong> ${data.ingles}</p>
+        <p><strong>Precisa de carro:</strong> ${data.precisa_carro ? "Sim" : "Não"}</p>
+        <p><strong>Requer ITIN:</strong> ${data.requer_itin ? "Sim" : "Não"}</p>
+        <button id="confirmar" class="btn">Confirmar e publicar</button>
+      `;
+
+      document.getElementById("confirmar").onclick = async () => {
+        try {
+          const res = await fetch("/create-ad", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+
+          const result = await res.json();
+          document.getElementById("resultado").innerHTML = `
+            <h3>✅ Anúncio publicado com sucesso!</h3>
+            <p><a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
+            <button id="copiar" class="btn">Copiar link</button>
+          `;
+          document.getElementById("copiar").onclick = () => {
+            navigator.clipboard.writeText(result.short_link);
+            alert("Link copiado!");
+          };
+
+          document.getElementById("job-form").reset();
+          document.getElementById("preview").innerHTML = "";
+        } catch (err) {
+          alert("Erro ao criar anúncio.");
+        }
+      };
+    });
+  </script>
+</body>
+
+</html>

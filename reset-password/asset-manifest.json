@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/reset-password/static/css/main.1fbbefdf.chunk.css",
+    "main.js": "/reset-password/static/js/main.e0fc2872.chunk.js",
+    "main.js.map": "/reset-password/static/js/main.e0fc2872.chunk.js.map",
+    "runtime-main.js": "/reset-password/static/js/runtime-main.6fcfd41b.js",
+    "runtime-main.js.map": "/reset-password/static/js/runtime-main.6fcfd41b.js.map",
+    "static/js/2.be23a478.chunk.js": "/reset-password/static/js/2.be23a478.chunk.js",
+    "static/js/2.be23a478.chunk.js.map": "/reset-password/static/js/2.be23a478.chunk.js.map",
+    "index.html": "/reset-password/index.html",
+    "static/css/main.1fbbefdf.chunk.css.map": "/reset-password/static/css/main.1fbbefdf.chunk.css.map",
+    "static/js/2.be23a478.chunk.js.LICENSE.txt": "/reset-password/static/js/2.be23a478.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6fcfd41b.js",
+    "static/js/2.be23a478.chunk.js",
+    "static/css/main.1fbbefdf.chunk.css",
+    "static/js/main.e0fc2872.chunk.js"
+  ]
+}

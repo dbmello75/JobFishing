@@ -1,0 +1,252 @@
+html {
+    font-size: 62.5%;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 400;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
+.center {
+    margin: 0 auto;
+    padding: 0 2em;
+    width: 122.4em;
+}
+
+.text {
+    color: #5C5C5C;
+    font-size: 1.8rem;
+    line-height: 1.4;
+}
+
+.title {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.darker-bg {
+    background-color: #F1F2F3;
+    margin-top: -26em;
+}
+
+.row {
+    display: flex;
+        flex-wrap: wrap;
+}
+
+.col-3 {
+    width: 25%;
+}
+
+.col-5 {
+    width: 41.66%;
+}
+
+.rounded-img {
+    border-radius: 3em;
+}
+
+.rounded-img--smaller {
+    border-radius: 2em;
+}
+
+.box-shadow {
+    box-shadow: 0 3em 6em 0 rgba(0, 0, 0, .16);
+}
+
+.img-border {
+    border: .1em solid rgba(232, 229, 229, .30);
+}
+
+/*============================================================================
+HEADER
+============================================================================*/
+
+.header {
+    background-image: url(../images/header-bg.png);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    min-height: 138.1em;
+    overflow: hidden;
+    position: relative;
+}
+
+.header__img-wrapper {
+    position: absolute;
+        right: -11.3em;
+        top: -23.5em;
+}
+
+.header__logo-wrapper {
+    margin-top: 28.2em;
+}
+
+.header__text {
+    margin-top: 1.6em;
+}
+
+/*============================================================================
+SECTION-2
+============================================================================*/
+
+.section-2 {
+    padding-top: 30.8em;
+}
+
+.section-2__container {
+    display: flex;
+        justify-content: flex-end;
+    position: relative;
+}
+
+.section-2__img-wrapper {
+    position: absolute;
+        left: -20.6em;
+        top: 2em;
+}
+
+.section-2__title {
+    margin-bottom: 0.8em;
+}
+
+.section-2__text {
+    margin-top: .7em;
+}
+
+.section-2__icon-wrapper {
+    display: flex;
+        align-items: flex-start;
+    margin-top: 2.7em;
+}
+
+.section-2__icon-wrapper:first-of-type {
+    margin-top: 10em;
+}
+
+.section-2__icon {
+    border-radius: 1em;
+    overflow: hidden;
+}
+
+.section-2__text-wrapper {
+    margin-left: 3.3em;
+}
+
+.section-2__subtitle {
+    font-size: 2.5rem;
+}
+
+.section-2__text-content{
+    max-width: 50%;
+}
+
+/*============================================================================
+JOBS
+============================================================================*/
+
+.jobs {
+    margin-top: 36.6em;
+}
+
+.jobs__title {
+    margin: -0.425em 0 0 0.925em;
+}
+
+.jobs__text {
+    margin: 2.5em 0 0 2.0555em;
+}
+
+.jobs__img-container {
+    margin: 15.5em auto 0 auto;
+    max-width: 171.5em;
+    padding-bottom: 25.7em;
+}
+
+.jobs__img-container .col-3{
+    padding: 0 2.1em;
+}
+
+.jobs__bottom-img {
+    margin-top: 2.9em;
+}
+
+/*============================================================================
+SEARCH
+============================================================================*/
+
+.search__title-wrapper {
+    margin-top: 15em;
+}
+
+.search__title {
+    margin: -1.1em 0 0 1.925em;
+}
+
+.search__text {
+    margin: 2.5em 0 0 4.2777em;
+}
+
+.search__img-wrapper {
+    margin-top: 10.8em;
+}
+
+/*============================================================================
+CHAT
+============================================================================*/
+
+.chat {
+    background-image: url(../images/footer-bg.png);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    margin-top: 37.4em;
+    min-height: 152.6em;
+}
+
+.chat__title {
+    margin: -1.125em 0 0 1.275em;
+}
+
+.chat__text {
+    margin: 3.8333em 0 0 2.8333em;
+}
+
+.chat__img-container {
+    margin-top: 15em;
+}
+
+.chat__row {
+    justify-content: center;
+}
+
+.chat__top-img {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.chat__bottom-img {
+    margin-top: 6.1em;
+}
+
+.box-download{
+    padding-top: 20px;
+}
+
+.box-download a{
+    display: inline-block;
+}
+
+.box-download--footer{
+    text-align: center;
+    padding-top: 200px;
+}
