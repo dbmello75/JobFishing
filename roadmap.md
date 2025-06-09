@@ -7,16 +7,15 @@
 ---
 
 ## 🔹 V0.06 – Aprimoramento UX e Dados
-- [ ] Adicionar campo “Localização” ou “Região”
-- [ ] Adicionar campo opcional “E‑mail do empregador”
+- [x] Adicionar campo “Localização” ou “Região”
 - [ ] Botão “Criar novo anúncio” após sucesso
-- [ ] Mensagem de sucesso mais amigável
-- [ ] Início da padronização visual com CSS global
+- [x] Mensagem de sucesso mais amigável
+- [x] Início da padronização visual com CSS global
 
 ---
 
 ## 🔹 V0.07 – Monitoramento e Notificações
-- [ ] Armazenar logs de acessos e cliques
+- [x] Armazenar logs de acessos e cliques
 - [ ] API de relatório de desempenho
 - [ ] Notificação por WhatsApp após criação do anúncio
 - [ ] Implementar endpoint `/cancel-ad` via token
@@ -35,6 +34,19 @@
 - [ ] Redirecionamento para checkout do Square App
 - [ ] Webhook para validar pagamento
 - [ ] Suporte a planos pagos (avulso, pacote, assinatura)
+
+---
+
+## 🔹 V0.10 – Integração com Grupos de WhatsApp
+
+- [x] Tabelas para estados, regiões, categorias e grupos (normalizadas)
+- [x] Cadastro manual de grupos com links curtos rastreáveis
+- [ ] Página `grupos.html` com listagem dinâmica por região/categoria
+- [ ] Endpoint `GET /g/{short_id}` com redirecionamento e contagem de cliques
+- [ ] API para consulta dos grupos disponíveis (por frontend)
+- [ ] Relatório de acessos aos grupos
+- [ ] Controle de ativação/desativação de regiões e grupos
+
 
 ---
 

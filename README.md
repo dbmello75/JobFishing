@@ -1,106 +1,59 @@
 # JobFishing
-=======
-# 🛠️ JobFishing Backend
 
-Backend FastAPI para gerenciamento de **anúncios com links curtos rastreáveis**, integrado ao domínio `https://jfsh.io`. Ele redireciona os acessos para o site principal `https://jobfising.us` e controla validade e contagem de cliques dos anúncios.
+Plataforma para publicação de vagas de emprego e serviços, com envio automatizado para grupos de WhatsApp e rastreamento de cliques por link curto.
 
 ---
 
-## 🔗 Como Funciona
+## 📁 Estrutura do Projeto
 
-1. **Criação de Anúncio**
-
-   * Endpoint `POST /create-ad`
-   * Gera um link curto como:
-     `https://jfsh.io/r/abc123`
-
-2. **Redirecionamento**
-
-   * Se o anúncio estiver ativo:
-     Redireciona para `https://jobfising.us/anuncio/{uuid}`
-   * Se expirado ou desativado:
-     Mostra: *"Esta vaga foi preenchida ou expirou."*
-
-3. **Desativação Manual**
-
-   * Endpoint `POST /deactivate-ad/{short_id}`
-     Desativa o anúncio antes da data de validade.
+```
+jobfishing/
+├── backend/           # API FastAPI com SQLite e encurtador de links
+│   ├── main.py
+│   └── requirements.txt
+├── frontend/          # HTML/JS do site com formulário e visualização de anúncio
+│   ├── index.html
+│   ├── anuncio.html
+│   └── Makefile
+├── .env.example       # Exemplo de variáveis de ambiente
+├── .gitignore         # Exclusões padrão para Git
+├── Makefile           # Makefile unificado de deploy e automações
+├── roadmap.md         # Planejamento de versões e funcionalidades
+└── README.md          # Este arquivo
+```
 
 ---
 
-## 🚀 Como Subir no Servidor
+## 🚀 Deploy
 
-### 1. Instalar dependências
+Use os comandos abaixo para gerenciar o deploy no servidor:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-### 2. Arquivo `requirements.txt`
-
-```txt
-fastapi
-uvicorn
+make deploy-all     # Sincroniza backend e frontend com o servidor
+make clearrestart        # Reinicia o serviço FastAPI via systemd
+make logs           # Exibe os logs do serviço
 ```
 
 ---
 
-## ⚙️ Deploy com Gunicorn + systemd
+## ⚙️ Variáveis de Ambiente
 
-### Criar o serviço: `/etc/systemd/system/jobfishing.service`
+Crie um `.env` com base no `.env.example`:
 
-```ini
-[Unit]
-Description=JobFishing FastAPI backend
-After=network.target
-
-[Service]
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/jobfishing-backend
-ExecStart=/var/www/jobfishing-backend/venv/bin/gunicorn -k uvicorn.workers.UvicornWorker app.main:app -b 127.0.0.1:8000
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### Ativar e iniciar:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now jobfishing
+```env
+REDIRECT_DOMAIN=https://jobfishing.us
+SHORTLINK_DOMAIN=https://jfsh.io
+DATABASE_PATH=./ads.db
 ```
 
 ---
 
-## 🌐 Apache Proxy (jfsh.io)
+## 📌 Roadmap
 
-No `jfsh.io.conf`:
-
-```apache
-ProxyPass /r/ http://127.0.0.1:8000/r/
-ProxyPassReverse /r/ http://127.0.0.1:8000/r/
-```
+Consulte o arquivo [`roadmap.md`](./roadmap.md) para ver a evolução do projeto e funcionalidades planejadas.
 
 ---
 
-## 📦 Estrutura do Projeto
+## 📞 Comunicação
 
-```
-jobfishing-backend/
-├── app/
-│   └── main.py           # App FastAPI com rotas e lógica de redirecionamento
-├── requirements.txt      # Dependências do projeto
-└── jobfishing.service    # Arquivo systemd para rodar o backend
-```
-
----
-
-## 👤 Autor
-
-Desenvolvido por [@dbmello75](https://github.com/dbmello75)
-Contato via [GitHub](https://github.com/dbmello75) ou canal do JobFishing.
-
+Toda a comunicação com empregadores é feita exclusivamente via WhatsApp. O uso de e-mail não é necessário.
