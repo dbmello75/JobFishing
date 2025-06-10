@@ -44,14 +44,27 @@ CREATE TABLE IF NOT EXISTS group_links (
     FOREIGN KEY (group_id) REFERENCES whatsapp_groups(id)
 );
 
+CREATE TABLE IF NOT EXISTS ads (
+    id TEXT PRIMARY KEY,
+    short_id TEXT UNIQUE,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    employer_phone TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    expires_at TEXT NOT NULL,
+    active INTEGER DEFAULT 1,
+    click_count INTEGER DEFAULT 0
+);
+
+
 -- Estados iniciais
-INSERT INTO states (name, code) VALUES
+INSERT OR IGNORE INTO states (name, code) VALUES
   ('Massachusetts', 'MA'),
   ('Rhode Island', 'RI'),
   ('New Hampshire', 'NH');
 
 -- Regiões por estado
-INSERT INTO regions (name, state_id, is_statewide) VALUES
+INSERT OR IGNORE INTO regions (name, state_id, is_statewide) VALUES
   ('MetroWest', 1, 0),
   ('Worcester', 1, 0),
   ('SouthShore', 1, 0),
@@ -60,7 +73,7 @@ INSERT INTO regions (name, state_id, is_statewide) VALUES
   ('New Hampshire (NH)', 3, 1);
 
 -- Categorias
-INSERT INTO categories (name) VALUES
+INSERT OR IGNORE INTO categories (name) VALUES
   ('Geral'),
   ('Construção'),
   ('Limpeza'),

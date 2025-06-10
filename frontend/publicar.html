@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>V0.06 - Publicar Vaga - JobFishing</title>
+  <title>V0.07 - Publicar Vaga - JobFishing</title>
   <style>
     body { font-family: Arial; max-width: 600px; margin: 40px auto; }
     input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
@@ -35,8 +35,10 @@
       <option value="14">14 dias</option>
     </select>
 
-    <label>Região</label>
-    <select name="region" id="regiao-select" required></select>
+	<label>Estado</label>
+	<select id="estado-select" required></select>
+	<label>Região</label>
+	<select id="regiao-select" name="region" required></select>
 
     <label>Nível de inglês necessário</label>
     <select name="ingles">
@@ -62,80 +64,108 @@
   <div id="preview"></div>
   <div id="resultado"></div>
 
-  <script>
-    // Carrega as regiões de um JSON
-    fetch("/regioes.json")
-      .then(res => res.json())
-      .then(data => {
-        const select = document.getElementById("regiao-select");
-        data.forEach(region => {
-          const opt = document.createElement("option");
-          opt.value = opt.textContent = region;
-          select.appendChild(opt);
-        });
-      })
-      .catch(() => {
-        const regiaoSelect = document.getElementById("regiao-select");
-        ["South Shore", "RI", "North Shore", "Metro West", "Variada"].forEach(region => {
-          const opt = document.createElement("option");
-          opt.value = opt.textContent = region;
-          regiaoSelect.appendChild(opt);
-        });
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  let allRegions = [];
+
+  fetch("/states")
+    .then(res => res.json())
+    .then(states => {
+      const estadoSelect = document.getElementById("estado-select");
+      states.forEach(state => {
+        const opt = document.createElement("option");
+        opt.value = state.id;
+        opt.textContent = state.name;
+        estadoSelect.appendChild(opt);
       });
 
-    document.getElementById("job-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const form = e.target;
-      const data = {
-        title: form.title.value.trim(),
-        description: form.description.value.trim(),
-        employer_phone: form.employer_phone.value.trim(),
-        days_valid: parseInt(form.days_valid.value),
-        region: form.region.value,
-        ingles: form.ingles.value,
-        precisa_carro: form.precisa_carro.checked,
-        requer_itin: form.requer_itin.checked
-      };
-
-      document.getElementById("preview").innerHTML = `
-        <h3>Pré-visualização:</h3>
-        <p><strong>${data.title}</strong></p>
-        <p>${data.description}</p>
-        <p><strong>Contato:</strong> ${data.employer_phone}</p>
-        <p><strong>Região:</strong> ${data.region}</p>
-        <p><strong>Inglês:</strong> ${data.ingles}</p>
-        <p><strong>Precisa de carro:</strong> ${data.precisa_carro ? "Sim" : "Não"}</p>
-        <p><strong>Requer ITIN:</strong> ${data.requer_itin ? "Sim" : "Não"}</p>
-        <button id="confirmar" class="btn">Confirmar e publicar</button>
-      `;
-
-      document.getElementById("confirmar").onclick = async () => {
-        try {
-          const res = await fetch("/create-ad", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-          });
-
-          const result = await res.json();
-          document.getElementById("resultado").innerHTML = `
-            <h3>✅ Anúncio publicado com sucesso!</h3>
-            <p><a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
-            <button id="copiar" class="btn">Copiar link</button>
-          `;
-          document.getElementById("copiar").onclick = () => {
-            navigator.clipboard.writeText(result.short_link);
-            alert("Link copiado!");
-          };
-
-          document.getElementById("job-form").reset();
-          document.getElementById("preview").innerHTML = "";
-        } catch (err) {
-          alert("Erro ao criar anúncio.");
-        }
-      };
+      return fetch("/regions");
+    })
+    .then(res => res.json())
+    .then(regions => {
+      allRegions = regions.filter(r => r.active);
+      updateRegionOptions();
+    })
+    .catch(err => {
+      console.error("Erro ao carregar estados ou regiões:", err);
     });
-  </script>
+
+  document.getElementById("estado-select").addEventListener("change", updateRegionOptions);
+
+  function updateRegionOptions() {
+    const selectedStateId = parseInt(document.getElementById("estado-select").value);
+    const regiaoSelect = document.getElementById("regiao-select");
+    regiaoSelect.innerHTML = "";
+
+    const filteredRegions = allRegions.filter(r => r.state_id === selectedStateId);
+    filteredRegions.forEach(region => {
+      const opt = document.createElement("option");
+      opt.value = region.id;
+      opt.textContent = region.name;
+      regiaoSelect.appendChild(opt);
+    });
+  }
+
+  document.getElementById("job-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const form = e.target;
+
+    const regiaoNome = form.region.options[form.region.selectedIndex].text;
+
+    const data = {
+      title: form.title.value.trim(),
+      description: form.description.value.trim(),
+      employer_phone: form.employer_phone.value.trim(),
+      days_valid: parseInt(form.days_valid.value),
+      region: form.region.value,
+      ingles: form.ingles.value,
+      precisa_carro: form.precisa_carro.checked,
+      requer_itin: form.requer_itin.checked
+    };
+
+    document.getElementById("preview").innerHTML = `
+      <h3>Pré-visualização:</h3>
+      <p><strong>${data.title}</strong></p>
+      <p>${data.description}</p>
+      <p><strong>Contato:</strong> ${data.employer_phone}</p>
+      <p><strong>Região:</strong> ${regiaoNome}</p>
+      <p><strong>Inglês:</strong> ${data.ingles}</p>
+      <p><strong>Precisa de carro:</strong> ${data.precisa_carro ? "Sim" : "Não"}</p>
+      <p><strong>Requer ITIN:</strong> ${data.requer_itin ? "Sim" : "Não"}</p>
+      <button id="confirmar" class="btn">Confirmar e publicar</button>
+    `;
+
+    document.getElementById("confirmar").onclick = async () => {
+      try {
+        const res = await fetch("/ads/create-ad", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        document.getElementById("resultado").innerHTML = `
+          <h3>✅ Anúncio publicado com sucesso!</h3>
+          <p><a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
+          <button id="copiar" class="btn">Copiar link</button>
+        `;
+        document.getElementById("copiar").onclick = () => {
+          navigator.clipboard.writeText(result.short_link);
+          alert("Link copiado!");
+        };
+
+        form.reset();
+        document.getElementById("preview").innerHTML = "";
+      } catch (err) {
+        alert("Erro ao criar anúncio.");
+        console.error(err);
+      }
+    };
+  });
+});
+</script>
+
+
 </body>
 
 </html>
