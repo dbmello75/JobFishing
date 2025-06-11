@@ -1,0 +1,18 @@
+[Unit]
+Description=JobFishing FastAPI backend
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+EnvironmentFile=/var/www/jobfishing-backend/.env
+Environment=PYTHONPATH=/var/www/jobfishing-backend
+WorkingDirectory=/var/www/jobfishing-backend/
+ExecStart=/var/www/jobfishing-venv/bin/gunicorn -k uvicorn.workers.UvicornWorker main:app -b 127.0.0.1:8000
+Restart=always
+TimeoutStopSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

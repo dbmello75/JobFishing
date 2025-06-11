@@ -1,32 +1,46 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from uuid import uuid4, UUID
 from datetime import datetime, timedelta
-import sqlite3
-import os
+from db import db_connection
 import random
 import string
-
+import os
 
 router = APIRouter()
 
-DB_PATH = os.getenv("DB_PATH", "jobfishing.db")
-
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+SHORT_URL_PREFIX = os.getenv("SHORT_URL_PREFIX", "https://jfsh.io/r/")
+FULL_URL_PREFIX = os.getenv("FULL_URL_PREFIX", "https://jobfishing.us/anuncio.html?id=")
 
 class AdCreateRequest(BaseModel):
     title: str
     description: str
     employer_phone: str
-    days_valid: int
+    days_valid: int = Field(gt=0)
     state: str
     region: str
     ingles: str
     precisa_carro: bool
     requer_itin: bool
+
+    @validator("employer_phone")
+    def validate_phone(cls, v):
+        if not v.isdigit():
+            raise ValueError("Telefone deve conter apenas números.")
+        return v
+
+
+@app.get("/categories")
+def get_categories():
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name FROM categories WHERE active = 1")
+            rows = cursor.fetchall()
+        return [{"id": row["id"], "name": row["name"]} for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 def generate_short_id(length=4):
@@ -39,78 +53,81 @@ def create_ad(payload: AdCreateRequest):
     expires = now + timedelta(days=payload.days_valid)
     short_id = generate_short_id()
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        INSERT INTO ads (id, short_id, title, description, employer_phone, created_at, expires_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (str(ad_id), short_id, payload.title, payload.description, payload.employer_phone, now.isoformat(), expires.isoformat()))
-    conn.commit()
-    conn.close()
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO ads (id, short_id, title, description, employer_phone, created_at, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (str(ad_id), short_id, payload.title, payload.description, payload.employer_phone, now.isoformat(), expires.isoformat()))
+            conn.commit()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao criar anúncio: {str(e)}")
 
-    return {"message": "Anúncio criado com sucesso!", "short_link": f"https://jfsh.io/r/{short_id}"}
+    return {"message": "Anúncio criado com sucesso!", "short_link": f"{SHORT_URL_PREFIX}{short_id}"}
 
 @router.get("/anuncio/{ad_id}")
 def get_anuncio(ad_id: UUID):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM ads WHERE id = ?", (str(ad_id),))
-    ad = cursor.fetchone()
-    conn.close()
-
-    if not ad:
-        raise HTTPException(status_code=404, detail="Anúncio não encontrado")
-
-    return {key: ad[key] for key in ad.keys()}
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM ads WHERE id = ?", (str(ad_id),))
+            ad = cursor.fetchone()
+            if not ad:
+                raise HTTPException(status_code=404, detail="Anúncio não encontrado")
+            return {key: ad[key] for key in ad.keys()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+from fastapi.responses import RedirectResponse
 
 @router.get("/r/{short_id}")
 def redirect_short(short_id: str):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id FROM ads WHERE short_id = ?", (short_id,))
-    result = cursor.fetchone()
-    conn.close()
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, click_count FROM ads WHERE short_id = ?", (short_id,))
+            result = cursor.fetchone()
+            if not result:
+                raise HTTPException(status_code=404, detail="Link não encontrado")
 
-    if not result:
-        raise HTTPException(status_code=404, detail="Link não encontrado")
+            ad_id, count = result["id"], result["click_count"]
+            cursor.execute("UPDATE ads SET click_count = ? WHERE id = ?", (count + 1, ad_id))
+            conn.commit()
 
-    ad_id = result["id"]
-    return {"redirect_to": f"https://jobfishing.us/anuncio.html?id={ad_id}"}
-
+            return RedirectResponse(url=f"{FULL_URL_PREFIX}{ad_id}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/regions")
 def get_regions():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT name FROM regions WHERE active = 1")
-    rows = cursor.fetchall()
-    conn.close()
-    return [row[0] for row in rows]
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM regions WHERE active = 1")
+            rows = cursor.fetchall()
+            return [row["name"] for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    
 @router.get("/locations")    
 def get_locations():
-    """
-    Retorna lista de estados ativos e suas regiões ativas para preenchimento do formulário.
-    Estrutura: [{ "state": "MA", "regions": ["MetroWest", ...] }, ...]
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT s.code, r.name
-        FROM states s
-        JOIN regions r ON r.state_id = s.id
-        WHERE s.active = 1 AND r.active = 1
-        ORDER BY s.code, r.name
-    """)
-    rows = cursor.fetchall()
-    conn.close()
-
-    locations = {}
-    for state_code, region_name in rows:
-        locations.setdefault(state_code, []).append(region_name)
-
-    return [
-        {"state": state, "regions": regions}
-        for state, regions in locations.items()
-    ]
+    try:
+        with db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT s.code, r.name
+                FROM states s
+                JOIN regions r ON r.state_id = s.id
+                WHERE s.active = 1 AND r.active = 1
+                ORDER BY s.code, r.name
+            """)
+            rows = cursor.fetchall()
+        locations = {}
+        for state_code, region_name in rows:
+            locations.setdefault(state_code, []).append(region_name)
+        return [
+            {"state": state, "regions": regions}
+            for state, regions in locations.items()
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

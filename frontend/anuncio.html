@@ -23,12 +23,13 @@
 </head>
 
 <body>
-  <div id="anuncio">Carregando...</div>
+  <div id="anuncio" role="region">Carregando...</div>
 
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const params = new URLSearchParams(window.location.search);
       const id = params.get("id");
+      const API_URL = window.location.origin;
 
       if (!id) {
         document.getElementById("anuncio").innerHTML = "<p>ID não informado.</p>";
@@ -36,7 +37,7 @@
       }
 
       try {
-        const res = await fetch(`/anuncio/${id}`);
+        const res = await fetch(`${API_URL}/ads/anuncio/${id}`);
         const result = await res.json();
 
         if (result.detail) {
@@ -45,7 +46,6 @@
           document.getElementById("anuncio").innerHTML = `
             <h2>${result.title}</h2>
             <p>${result.description}</p>
-            <p><strong>Região:</strong> ${result.region || 'Não informado'}</p>
             <p><strong>Inglês:</strong> ${result.english_level || 'Não informado'}</p>
             <p><strong>Precisa de carro:</strong> ${result.requires_car ? 'Sim' : 'Não'}</p>
             <p><strong>Requer ITIN:</strong> ${result.requires_itin ? 'Sim' : 'Não'}</p>
@@ -54,6 +54,7 @@
         }
       } catch (e) {
         document.getElementById("anuncio").innerHTML = "<p>Erro ao carregar anúncio.</p>";
+        console.error(e);
       }
     });
   </script>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Grupos de WhatsApp</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f9f9f9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Grupos de WhatsApp Disponíveis</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Nome do Grupo</th>
+        <th>Cliques</th>
+      </tr>
+    </thead>
+    <tbody id="grupo-tabela">
+      <!-- Conteúdo inserido dinamicamente -->
+    </tbody>
+  </table>
+
+<script>
+window.onload = async () => {
+  try {
+    const res = await fetch("/groups/list");
+    const grupos = await res.json();
+    const tbody = document.getElementById("grupo-tabela");
+    grupos.forEach(g => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><a href="${g.short_link}" target="_blank">${g.nome}</a></td>
+        <td>${g.click_count}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    document.body.innerHTML += "<p>Erro ao carregar grupos: " + err.message + "</p>";
+  }
+};
+</script>
+</body>
+</html>

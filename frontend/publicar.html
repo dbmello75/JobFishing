@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
   <meta charset="UTF-8">
-  <title>V0.07 - Publicar Vaga - JobFishing</title>
+  <title>V0.07.1 - Publicar Vaga - JobFishing</title>
   <style>
     body { font-family: Arial; max-width: 600px; margin: 40px auto; }
     input, textarea, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
@@ -19,29 +18,34 @@
 <body>
   <h1>Publique sua vaga de emprego</h1>
   <form id="job-form">
-    <label>Título da vaga</label>
-    <input type="text" name="title" required>
+	<label>Categoria da vaga</label>
+	<select id="categoria-select" name="category_id" required>
+		<option value="">Carregando categorias...</option>
+	</select>
 
-    <label>Descrição</label>
-    <textarea name="description" required></textarea>
+    <label for="title">Título da vaga</label>
+    <input type="text" id="title" name="title" required>
 
-    <label>Telefone para contato (WhatsApp)</label>
-    <input type="tel" name="employer_phone" required>
+    <label for="description">Descrição</label>
+    <textarea id="description" name="description" required></textarea>
 
-    <label>Duração do anúncio</label>
-    <select name="days_valid">
+    <label for="employer_phone">Telefone para contato (WhatsApp)</label>
+    <input type="tel" id="employer_phone" name="employer_phone" required>
+
+    <label for="days_valid">Duração do anúncio</label>
+    <select name="days_valid" id="days_valid">
       <option value="3">3 dias</option>
       <option value="7">7 dias</option>
       <option value="14">14 dias</option>
     </select>
 
-	<label>Estado</label>
-	<select id="estado-select" required></select>
-	<label>Região</label>
-	<select id="regiao-select" name="region" required></select>
+    <label for="estado-select">Estado</label>
+    <select id="estado-select" required></select>
+    <label for="regiao-select">Região</label>
+    <select id="regiao-select" name="region" required></select>
 
-    <label>Nível de inglês necessário</label>
-    <select name="ingles">
+    <label for="ingles">Nível de inglês necessário</label>
+    <select name="ingles" id="ingles">
       <option value="Não é necessário">Não é necessário</option>
       <option value="Básico">Básico</option>
       <option value="Intermediário">Intermediário</option>
@@ -58,17 +62,35 @@
       <label for="requer_itin">Requer ITIN Number?</label>
     </div>
 
-    <button type="submit" class="btn">Pré-visualizar anúncio</button>
+    <button type="submit" class="btn" aria-label="Pré-visualizar e publicar anúncio">Pré-visualizar anúncio</button>
   </form>
 
-  <div id="preview"></div>
-  <div id="resultado"></div>
+  <div id="preview" role="region"></div>
+  <div id="resultado" role="region"></div>
 
 <script>
 window.addEventListener("DOMContentLoaded", () => {
   let allRegions = [];
+  const API_URL = window.location.origin;
 
-  fetch("/states")
+fetch("/categories")
+  .then(res => res.json())
+  .then(categories => {
+    const select = document.getElementById("categoria-select");
+    select.innerHTML = "";
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      select.appendChild(opt);
+    });
+  })
+  .catch(err => {
+    console.error("Erro ao carregar categorias:", err);
+  });
+
+
+  fetch(`${API_URL}/states`)
     .then(res => res.json())
     .then(states => {
       const estadoSelect = document.getElementById("estado-select");
@@ -78,8 +100,7 @@ window.addEventListener("DOMContentLoaded", () => {
         opt.textContent = state.name;
         estadoSelect.appendChild(opt);
       });
-
-      return fetch("/regions");
+      return fetch(`${API_URL}/regions`);
     })
     .then(res => res.json())
     .then(regions => {
@@ -109,19 +130,25 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("job-form").addEventListener("submit", function (e) {
     e.preventDefault();
     const form = e.target;
-
     const regiaoNome = form.region.options[form.region.selectedIndex].text;
 
-    const data = {
-      title: form.title.value.trim(),
-      description: form.description.value.trim(),
-      employer_phone: form.employer_phone.value.trim(),
-      days_valid: parseInt(form.days_valid.value),
-      region: form.region.value,
-      ingles: form.ingles.value,
-      precisa_carro: form.precisa_carro.checked,
-      requer_itin: form.requer_itin.checked
-    };
+	const data = {
+	  category_id: parseInt(form.category_id.value),
+	  title: form.title.value.trim(),
+	  description: form.description.value.trim(),
+	  employer_phone: form.employer_phone.value.trim(),
+	  days_valid: parseInt(form.days_valid.value),
+	  state: form["estado-select"].value,  // <- adicionado
+	  region: form.region.value,
+	  ingles: form.ingles.value,
+	  precisa_carro: form.precisa_carro.checked,
+	  requer_itin: form.requer_itin.checked
+	};
+
+    if (!/^[0-9]+$/.test(data.employer_phone)) {
+      alert("Telefone deve conter apenas números.");
+      return;
+    }
 
     document.getElementById("preview").innerHTML = `
       <h3>Pré-visualização:</h3>
@@ -132,40 +159,63 @@ window.addEventListener("DOMContentLoaded", () => {
       <p><strong>Inglês:</strong> ${data.ingles}</p>
       <p><strong>Precisa de carro:</strong> ${data.precisa_carro ? "Sim" : "Não"}</p>
       <p><strong>Requer ITIN:</strong> ${data.requer_itin ? "Sim" : "Não"}</p>
-      <button id="confirmar" class="btn">Confirmar e publicar</button>
+      <button id="confirmar" class="btn" aria-label="Confirmar publicação do anúncio">Confirmar e publicar</button>
     `;
 
-    document.getElementById("confirmar").onclick = async () => {
-      try {
-        const res = await fetch("/ads/create-ad", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
+document.getElementById("confirmar").onclick = async () => {
+  const btn = document.getElementById("confirmar");
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API_URL}/ads/create-ad`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
 
-        const result = await res.json();
-        document.getElementById("resultado").innerHTML = `
-          <h3>✅ Anúncio publicado com sucesso!</h3>
-          <p><a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
-          <button id="copiar" class="btn">Copiar link</button>
-        `;
-        document.getElementById("copiar").onclick = () => {
-          navigator.clipboard.writeText(result.short_link);
-          alert("Link copiado!");
-        };
+    let result;
+    try {
+      result = await res.json();
+    } catch (jsonError) {
+      throw new Error("Erro inesperado: resposta inválida do servidor.");
+    }
 
-        form.reset();
-        document.getElementById("preview").innerHTML = "";
-      } catch (err) {
-        alert("Erro ao criar anúncio.");
-        console.error(err);
-      }
+	if (!res.ok) {
+	  let message = "Erro desconhecido";
+	  if (result.detail) {
+		if (Array.isArray(result.detail)) {
+		  message = result.detail.map(e => e.msg).join("; ");
+		} else if (typeof result.detail === "string") {
+		  message = result.detail;
+		} else {
+		  message = JSON.stringify(result.detail);
+		}
+	  }
+	  throw new Error(message);
+	}
+
+
+    document.getElementById("resultado").innerHTML = `
+      <h3>✅ Anúncio publicado com sucesso!</h3>
+      <p><a href="${result.short_link}" target="_blank">${result.short_link}</a></p>
+      <button id="copiar" class="btn" aria-label="Copiar link do anúncio">Copiar link</button>
+    `;
+    document.getElementById("copiar").onclick = () => {
+      navigator.clipboard.writeText(result.short_link);
+      alert("Link copiado!");
     };
+
+    form.reset();
+    document.getElementById("preview").innerHTML = "";
+  } catch (err) {
+    alert(`Erro ao criar anúncio: ${err.message}`);
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
   });
 });
 </script>
-
-
 </body>
-
 </html>

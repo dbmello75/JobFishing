@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Grupo de WhatsApp</title>
+</head>
+<body>
+  <h1>Cadastrar Grupo</h1>
+  <form id="grupo-form">
+    <label>Nome do grupo:</label>
+    <input type="text" name="nome" required><br>
+    <label>Link do WhatsApp:</label>
+    <input type="url" name="link_whatsapp" required><br>
+    <button type="submit">Cadastrar</button>
+  </form>
+  <div id="mensagem"></div>
+
+<script>
+document.getElementById("grupo-form").onsubmit = async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const data = {
+    nome: form.nome.value.trim(),
+    link_whatsapp: form.link_whatsapp.value.trim()
+  };
+  try {
+    const res = await fetch("/groups/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || "Erro desconhecido");
+    document.getElementById("mensagem").innerText = "Grupo cadastrado com sucesso!";
+    form.reset();
+  } catch (err) {
+    document.getElementById("mensagem").innerText = "Erro: " + err.message;
+  }
+};
+</script>
+</body>
+</html>
