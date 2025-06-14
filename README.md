@@ -58,6 +58,24 @@ jobfishing/
 
 ```
 
+
+💡 Fluxos possíveis com essa arquitetura:
+
+Publicar Anúncio (manual ou agendado)
+
+- FastAPI recebe o anúncio
+- n8n consulta anúncios ativos
+- Envia para grupos via Venom Bot
+
+Entrada em grupo
+- Venom detecta nova entrada
+- Chama webhook do n8n
+- n8n envia mensagem de boas-vindas via privado
+
+Saída de grupo
+- Venom detecta saída
+- n8n dispara pesquisa automática
+
 ---
 
 ## 🚀 Deploy
