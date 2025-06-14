@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  venom:
+    image: ghcr.io/orkestral/venom:latest
+    ports:
+      - "3000:3000"
+      - "9222:9222"
+    volumes:
+      - ./session:/usr/src/app/sessions
+      - ./logs:/usr/src/app/logs  # se a imagem suportar logs externos
+    environment:
+      - VENOM_NAME=jobfishing
+      - VENOM_PORT=3000
+      - AUTO_CLOSE=false
+      - DISABLE_SPINS=true
+    restart: always
