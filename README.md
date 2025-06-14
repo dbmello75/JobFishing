@@ -29,7 +29,7 @@ jobfishing/
 
           ┌────────────────────────┐
           │        Frontend        │
-          │ (HTML + JS estáticos) │
+          │ (HTML + JS estáticos)  │
           └─────────┬──────────────┘
                     │
                     ▼
@@ -43,13 +43,13 @@ jobfishing/
                     ▼                    │
           ┌────────────────────────┐     │
           │         n8n            │─────┘
-          │ (Automações, Lógica)  │
+          │ (Automações, Lógica)   │
           └─────────┬──────────────┘
                     │
                     ▼
           ┌────────────────────────┐
           │      Venom Bot         │
-          │ (WhatsApp Web Driver) │
+          │ (WhatsApp Web Driver)  │
           └─────────┬──────────────┘
                     │
                     ▼
